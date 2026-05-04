@@ -1,0 +1,43 @@
+{
+  "@@locale": "en",
+
+  "appName": "FarmerPulse",
+  "@appName": {
+    "description": "The name of the application"
+  },
+
+  "homeTitle": "Dashboard",
+  "@homeTitle": {
+    "description": "Title shown on the home/dashboard screen"
+  },
+
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Title shown on the settings screen"
+  },
+
+  "languageLabel": "Language",
+  "@languageLabel": {
+    "description": "Label for language selection"
+  },
+
+  "farmersLabel": "Farmers",
+  "@farmersLabel": {
+    "description": "Label for farmers section"
+  },
+
+  "noDataFound": "No data found.",
+  "@noDataFound": {
+    "description": "Shown when a list is empty"
+  },
+
+  "loading": "Loading…",
+  "@loading": {
+    "description": "Generic loading message"
+  },
+
+  "retry": "Retry",
+  "@retry": {
+    "description": "Retry button label"
+  }
+}
