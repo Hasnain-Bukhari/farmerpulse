@@ -39,14 +39,12 @@ class AppRouter {
         name: homeName,
         builder: (BuildContext context, GoRouterState state) =>
             const HomeScreen(),
-        routes: [
-          GoRoute(
-            path: 'settings',
-            name: settingsName,
-            builder: (BuildContext context, GoRouterState state) =>
-                const SettingsScreen(),
-          ),
-        ],
+      ),
+      GoRoute(
+        path: settings,
+        name: settingsName,
+        builder: (BuildContext context, GoRouterState state) =>
+            const SettingsScreen(),
       ),
     ],
     // Custom error page shown for unknown routes

@@ -21,10 +21,4 @@ class AppConstants {
   // ── Supported locales ─────────────────────────────────────────────────────
   static const String localeEn = 'en';
   static const String localeUr = 'ur';
-
-  // ── Route names ───────────────────────────────────────────────────────────
-  // Kept in sync with AppRouter; defined here to avoid circular imports.
-  static const String routeSplash = '/';
-  static const String routeHome = '/home';
-  static const String routeSettings = '/settings';
 }
