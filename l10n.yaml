@@ -1,0 +1,9 @@
+# Localization configuration
+# Run `flutter gen-l10n` to regenerate the localization code.
+# Output is placed in lib/generated/l10n/.
+
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-dir: lib/generated/l10n
+nullable-getter: false
