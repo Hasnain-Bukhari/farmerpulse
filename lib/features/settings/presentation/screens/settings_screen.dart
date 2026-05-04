@@ -1,53 +1,123 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../providers/settings_providers.dart';
 
-import '../../../../core/constants/app_constants.dart';
-import '../../../../shared/providers/locale_provider.dart';
-
-/// Settings screen — currently exposes language selection.
-///
-/// Extend with theme switcher, notification toggles, etc.
+/// Main settings screen.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final currentLocale = ref.watch(localeProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(l10n.settings),
       ),
       body: ListView(
+        padding: const EdgeInsets.all(16),
         children: [
-          // ── Language ──────────────────────────────────────────────────────
-          const _SectionHeader(title: 'Language'),
-          _LanguageTile(
-            language: 'English',
-            languageCode: AppConstants.localeEn,
-            isSelected: currentLocale.languageCode == AppConstants.localeEn,
-            onTap: () => ref
-                .read(localeProvider.notifier)
-                .setLocale(AppConstants.localeEn),
+          // Language Settings
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.language,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // English Option
+                  _LanguageOption(
+                    title: 'English',
+                    subtitle: 'English language',
+                    locale: const Locale('en'),
+                    currentLocale: currentLocale,
+                    onTap: () => ref.read(localeProvider.notifier).setLocale(const Locale('en')),
+                  ),
+                  
+                  const Divider(),
+                  
+                  // Urdu Option
+                  _LanguageOption(
+                    title: 'اردو',
+                    subtitle: 'Urdu language',
+                    locale: const Locale('ur'),
+                    currentLocale: currentLocale,
+                    onTap: () => ref.read(localeProvider.notifier).setLocale(const Locale('ur')),
+                  ),
+                ],
+              ),
+            ),
           ),
-          _LanguageTile(
-            language: 'اردو (Urdu)',
-            languageCode: AppConstants.localeUr,
-            isSelected: currentLocale.languageCode == AppConstants.localeUr,
-            onTap: () => ref
-                .read(localeProvider.notifier)
-                .setLocale(AppConstants.localeUr),
+          const SizedBox(height: 16),
+
+          // Data Management
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.data,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // Backup & Restore
+                  ListTile(
+                    leading: const Icon(Icons.backup),
+                    title: Text(l10n.backup),
+                    subtitle: const Text('Backup and restore your data'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push('/settings/backup'),
+                  ),
+                ],
+              ),
+            ),
           ),
+          const SizedBox(height: 16),
 
-          const Divider(),
-
-          // ── About ─────────────────────────────────────────────────────────
-          const _SectionHeader(title: 'About'),
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text('App Version'),
-            trailing: const Text('1.0.0'),
-            onTap: () {},
+          // App Information
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'App Information',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  ListTile(
+                    leading: const Icon(Icons.info),
+                    title: const Text('Version'),
+                    subtitle: const Text('1.0.0'),
+                  ),
+                  
+                  ListTile(
+                    leading: const Icon(Icons.description),
+                    title: const Text('About'),
+                    subtitle: Text(l10n.appDescription),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -55,45 +125,39 @@ class SettingsScreen extends ConsumerWidget {
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title});
-
+/// Language option widget.
+class _LanguageOption extends StatelessWidget {
   final String title;
+  final String subtitle;
+  final Locale locale;
+  final Locale currentLocale;
+  final VoidCallback onTap;
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-            ),
-      ),
-    );
-  }
-}
-
-class _LanguageTile extends StatelessWidget {
-  const _LanguageTile({
-    required this.language,
-    required this.languageCode,
-    required this.isSelected,
+  const _LanguageOption({
+    required this.title,
+    required this.subtitle,
+    required this.locale,
+    required this.currentLocale,
     required this.onTap,
   });
 
-  final String language;
-  final String languageCode;
-  final bool isSelected;
-  final VoidCallback onTap;
-
   @override
   Widget build(BuildContext context) {
+    final isSelected = locale == currentLocale;
+
     return ListTile(
-      leading: const Icon(Icons.language),
-      title: Text(language),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+      subtitle: Text(subtitle),
       trailing: isSelected
-          ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+          ? Icon(
+              Icons.check,
+              color: Theme.of(context).colorScheme.primary,
+            )
           : null,
       onTap: onTap,
     );
