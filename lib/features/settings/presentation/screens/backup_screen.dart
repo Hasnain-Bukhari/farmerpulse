@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../../../core/services/backup_service.dart';
-import '../../../l10n/app_localizations.dart';
+import '../../../../core/services/backup_service.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Screen for managing backup and restore operations.
 class BackupScreen extends ConsumerStatefulWidget {
@@ -57,6 +57,10 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.backup),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

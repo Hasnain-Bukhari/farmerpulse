@@ -286,7 +286,7 @@ class BackupService {
       'area': plot.area,
       'areaUnit': plot.areaUnit,
       'soilType': plot.soilType,
-      'statusIndex': plot.statusIndex,
+          'status': plot.status,
       'notes': plot.notes,
       'createdAt': plot.createdAt.toIso8601String(),
     };
@@ -302,7 +302,7 @@ class BackupService {
       area: json['area'] as double,
       areaUnit: json['areaUnit'] as String,
       soilType: json['soilType'] as String?,
-      statusIndex: json['statusIndex'] as int,
+      status: json['status'] as String,
       notes: json['notes'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
@@ -313,7 +313,7 @@ class BackupService {
     return {
       'id': activity.id,
       'plotId': activity.plotId,
-      'typeIndex': activity.typeIndex,
+          'type': activity.type,
       'title': activity.title,
       'description': activity.description,
       'date': activity.date.toIso8601String(),
@@ -321,7 +321,7 @@ class BackupService {
       'cost': activity.cost,
       'quantity': activity.quantity,
       'unit': activity.unit,
-      'statusIndex': activity.statusIndex,
+          'status': activity.status,
       'photos': activity.photos,
       'createdAt': activity.createdAt.toIso8601String(),
     };
@@ -332,7 +332,7 @@ class BackupService {
     return ActivityModel(
       id: json['id'] as String,
       plotId: json['plotId'] as String,
-      typeIndex: json['typeIndex'] as int,
+      type: json['type'] as String,
       title: json['title'] as String,
       description: json['description'] as String?,
       date: DateTime.parse(json['date'] as String),
@@ -340,7 +340,7 @@ class BackupService {
       cost: json['cost'] as double?,
       quantity: json['quantity'] as double?,
       unit: json['unit'] as String?,
-      statusIndex: json['statusIndex'] as int,
+      status: json['status'] as String,
       photos: (json['photos'] as List?)?.cast<String>() ?? [],
       createdAt: DateTime.parse(json['createdAt'] as String),
     );

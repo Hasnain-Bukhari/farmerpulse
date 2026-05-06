@@ -5,7 +5,14 @@ import '../models/reminder_model.dart';
 class ReminderLocalDataSource {
   static const String _boxName = 'reminders';
   
-  Box<ReminderModel> get _box => Hive.box<ReminderModel>(_boxName);
+  Box<ReminderModel> get _box {
+    try {
+      return Hive.box<ReminderModel>(_boxName);
+    } catch (e) {
+      // If box is not open, try to open it
+      throw Exception('Reminders box not initialized: $e');
+    }
+  }
 
   /// Create a new reminder.
   Future<void> createReminder(ReminderModel reminder) async {

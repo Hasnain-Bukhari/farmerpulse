@@ -31,6 +31,10 @@ class SeasonExpenseDashboardScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('${season.name} - Expenses'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

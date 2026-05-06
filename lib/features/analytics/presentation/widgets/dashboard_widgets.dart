@@ -5,11 +5,19 @@ import '../../domain/entities/dashboard_summary.dart';
 class FarmSummaryCard extends StatelessWidget {
   final DashboardSummary summary;
   final VoidCallback? onTap;
+  final VoidCallback? onPlotsClick;
+  final VoidCallback? onActivitiesClick;
+  final VoidCallback? onExpensesClick;
+  final VoidCallback? onRemindersClick;
 
   const FarmSummaryCard({
     super.key,
     required this.summary,
     this.onTap,
+    this.onPlotsClick,
+    this.onActivitiesClick,
+    this.onExpensesClick,
+    this.onRemindersClick,
   });
 
   @override
@@ -18,10 +26,8 @@ class FarmSummaryCard extends StatelessWidget {
 
     return Card(
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -75,6 +81,7 @@ class FarmSummaryCard extends StatelessWidget {
                       value: summary.totalPlots.toString(),
                       icon: Icons.map,
                       color: Colors.blue,
+                      onTap: onPlotsClick,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -85,6 +92,7 @@ class FarmSummaryCard extends StatelessWidget {
                       sublabel: 'last 7 days',
                       icon: Icons.timeline,
                       color: Colors.green,
+                      onTap: onActivitiesClick,
                     ),
                   ),
                 ],
@@ -101,6 +109,7 @@ class FarmSummaryCard extends StatelessWidget {
                       sublabel: 'current season',
                       icon: Icons.monetization_on,
                       color: Colors.orange,
+                      onTap: onExpensesClick,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -111,6 +120,7 @@ class FarmSummaryCard extends StatelessWidget {
                       sublabel: 'due now',
                       icon: Icons.notifications,
                       color: summary.dueReminders > 0 ? Colors.red : Colors.grey,
+                      onTap: onRemindersClick,
                     ),
                   ),
                 ],
@@ -151,7 +161,6 @@ class FarmSummaryCard extends StatelessWidget {
               ],
             ],
           ),
-        ),
       ),
     );
   }
@@ -177,6 +186,7 @@ class _MetricItem extends StatelessWidget {
   final String? sublabel;
   final IconData icon;
   final Color color;
+  final VoidCallback? onTap;
 
   const _MetricItem({
     required this.label,
@@ -184,21 +194,25 @@ class _MetricItem extends StatelessWidget {
     this.sublabel,
     required this.icon,
     required this.color,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withOpacity(0.2),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: color.withOpacity(0.2),
+          ),
         ),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -236,6 +250,7 @@ class _MetricItem extends StatelessWidget {
           ],
         ],
       ),
+    ),
     );
   }
 }

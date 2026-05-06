@@ -30,7 +30,7 @@ dependencies:
 
   # ---------- Localization ----------
   # intl: date/number formatting and ARB-based l10n
-  intl: ^0.19.0
+  intl: ^0.20.2
 
   # ---------- Local Notifications ----------
   # flutter_local_notifications: schedule & show local push notifications

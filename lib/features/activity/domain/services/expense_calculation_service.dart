@@ -1,5 +1,5 @@
 import '../../data/repositories/activity_repository.dart';
-import '../../data/repositories/plot_repository.dart';
+import '../../../plot/data/repositories/plot_repository.dart';
 
 /// Service for calculating expense totals and statistics.
 class ExpenseCalculationService {

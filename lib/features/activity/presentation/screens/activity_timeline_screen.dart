@@ -27,6 +27,10 @@ class ActivityTimelineScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Activity Timeline'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.analytics_outlined),
@@ -323,56 +327,139 @@ class _DateGroup extends StatelessWidget {
         date.month == today.month &&
         date.day == today.day;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Date header
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Row(
-            children: [
-              Container(
-                width: 4,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: isToday ? Colors.blue : theme.colorScheme.primary,
-                  borderRadius: BorderRadius.circular(2),
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Timeline Line
+          SizedBox(
+            width: 32,
+            child: Column(
+              children: [
+                // Top spacer
+                const SizedBox(height: 12),
+                // Date circle/dot
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: isToday ? Colors.blue : theme.colorScheme.primary,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 3,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: isToday
+                      ? const Icon(
+                          Icons.schedule,
+                          color: Colors.white,
+                          size: 12,
+                        )
+                      : const Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 12,
+                        ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                isToday ? 'Today' : dateFormat.format(date),
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: isToday ? Colors.blue : null,
+                // Connecting line
+                Expanded(
+                  child: Container(
+                    width: 2,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(1),
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceVariant,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '${activities.length} ${activities.length == 1 ? "activity" : "activities"}',
-                  style: theme.textTheme.labelSmall,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+          
+          // Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Date header
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 12, 0, 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isToday ? 'Today' : dateFormat.format(date),
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: isToday ? Colors.blue : null,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: (isToday ? Colors.blue : theme.colorScheme.primary)
+                              .withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: (isToday ? Colors.blue : theme.colorScheme.primary)
+                                .withOpacity(0.3),
+                          ),
+                        ),
+                        child: Text(
+                          '${activities.length} ${activities.length == 1 ? "activity" : "activities"}',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: isToday ? Colors.blue : theme.colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
-        // Activities for this date
-        ...activities.map((activity) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: ActivityCard(
-                activity: activity,
-                onTap: () => onActivityTap(activity),
-                onDelete: () => onActivityDelete(activity),
-              ),
-            )),
-      ],
+                // Activities for this date
+                ...activities.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final activity = entry.value;
+                  final isLast = index == activities.length - 1;
+                  
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: isLast ? 24 : 12,
+                      right: 16,
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: ActivityCard(
+                        activity: activity,
+                        onTap: () => onActivityTap(activity),
+                        onDelete: () => onActivityDelete(activity),
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

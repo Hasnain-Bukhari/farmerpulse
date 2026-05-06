@@ -1,6 +1,6 @@
-import '../domain/entities/revenue.dart';
-import 'data_sources/revenue_local_data_source.dart';
-import 'models/revenue_model.dart';
+import '../../domain/entities/revenue.dart';
+import '../data_sources/revenue_local_data_source.dart';
+import '../models/revenue_model.dart';
 
 /// Repository for Revenue data operations.
 class RevenueRepository {

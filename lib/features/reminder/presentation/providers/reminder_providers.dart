@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../data/data_sources/reminder_local_data_source.dart';
@@ -72,8 +73,19 @@ final remindersStreamProvider = StreamProvider<List<Reminder>>((ref) {
 
 /// Stream provider for active reminders.
 final activeRemindersStreamProvider = StreamProvider<List<Reminder>>((ref) {
-  final repository = ref.watch(reminderRepositoryProvider);
-  return repository.watchActiveReminders();
+  try {
+    final repository = ref.watch(reminderRepositoryProvider);
+    return repository.watchActiveReminders().handleError((error, stackTrace) {
+      // Log the error for debugging
+      debugPrint('Error in activeRemindersStreamProvider: $error');
+      debugPrint('Stack trace: $stackTrace');
+      throw error; // Re-throw to let Riverpod handle it
+    });
+  } catch (e) {
+    debugPrint('Error creating activeRemindersStreamProvider: $e');
+    // Return a stream with an empty list as fallback
+    return Stream.value(<Reminder>[]);
+  }
 });
 
 /// Stream provider for reminders by plot ID.
@@ -105,6 +117,17 @@ final activeRemindersListProvider = Provider<List<Reminder>>((ref) {
     loading: () => [],
     error: (_, __) => [],
   );
+});
+
+/// Fallback provider for active reminders (synchronous).
+final activeRemindersFallbackProvider = Provider<List<Reminder>>((ref) {
+  try {
+    final repository = ref.watch(reminderRepositoryProvider);
+    return repository.getActiveReminders();
+  } catch (e) {
+    debugPrint('Error in activeRemindersFallbackProvider: $e');
+    return <Reminder>[];
+  }
 });
 
 /// Provider for due reminders (overdue and due today).

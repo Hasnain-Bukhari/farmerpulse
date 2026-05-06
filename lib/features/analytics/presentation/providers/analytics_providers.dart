@@ -8,6 +8,7 @@ import '../../domain/use_cases/update_revenue_use_case.dart';
 import '../../domain/use_cases/delete_revenue_use_case.dart';
 import '../../domain/entities/revenue.dart';
 import '../../domain/entities/dashboard_summary.dart';
+import '../../../activity/domain/entities/activity.dart';
 import '../../../season/presentation/providers/season_providers.dart';
 import '../../../plot/presentation/providers/plot_providers.dart';
 import '../../../activity/presentation/providers/activity_providers.dart';
@@ -47,8 +48,9 @@ final farmAnalyticsServiceProvider = Provider<FarmAnalyticsService>((ref) {
 final profitLossCalculationServiceProvider = Provider<ProfitLossCalculationService>((ref) {
   final activityRepository = ref.watch(activityRepositoryProvider);
   final revenueRepository = ref.watch(revenueRepositoryProvider);
+  final plotRepository = ref.watch(plotRepositoryProvider);
   
-  return ProfitLossCalculationService(activityRepository, revenueRepository);
+  return ProfitLossCalculationService(activityRepository, revenueRepository, plotRepository);
 });
 
 // ══════════════════════════════════════════════════════════════════════════════

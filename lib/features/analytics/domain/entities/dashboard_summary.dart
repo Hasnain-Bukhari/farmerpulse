@@ -1,6 +1,6 @@
-import '../../season/domain/entities/season.dart';
-import '../../plot/domain/entities/plot.dart';
-import '../../activity/domain/entities/activity.dart';
+import '../../../season/domain/entities/season.dart';
+import '../../../plot/domain/entities/plot.dart';
+import '../../../activity/domain/entities/activity.dart';
 
 /// Dashboard summary containing key farm metrics.
 class DashboardSummary {

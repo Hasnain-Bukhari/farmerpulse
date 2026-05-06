@@ -1,7 +1,8 @@
-import '../../activity/data/repositories/activity_repository.dart';
-import '../../plot/data/repositories/plot_repository.dart';
-import '../data/repositories/revenue_repository.dart';
-import '../domain/entities/revenue.dart';
+import '../../../activity/data/repositories/activity_repository.dart';
+import '../../../activity/domain/entities/activity.dart';
+import '../../../plot/data/repositories/plot_repository.dart';
+import '../../data/repositories/revenue_repository.dart';
+import '../entities/revenue.dart';
 
 /// Service for calculating profit/loss and financial metrics.
 class ProfitLossCalculationService {

@@ -76,6 +76,10 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? 'Edit Reminder' : 'Create Reminder'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         actions: [
           if (_isLoading)
             const Center(

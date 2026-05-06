@@ -5,11 +5,17 @@ import '../../domain/entities/plot.dart';
 class PlotCard extends StatelessWidget {
   final Plot plot;
   final VoidCallback? onTap;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final VoidCallback? onStatusChange;
 
   const PlotCard({
     super.key,
     required this.plot,
     this.onTap,
+    this.onEdit,
+    this.onDelete,
+    this.onStatusChange,
   });
 
   @override
@@ -119,6 +125,46 @@ class PlotCard extends StatelessWidget {
                   ],
                 ),
               ],
+              
+              // Action buttons (if provided)
+              if (onEdit != null || onDelete != null || onStatusChange != null) ...[
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Status change button
+                    if (onStatusChange != null)
+                      OutlinedButton.icon(
+                        onPressed: onStatusChange,
+                        icon: Icon(_getStatusIcon(plot.status), size: 16),
+                        label: Text(_getNextStatusAction(plot.status)),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: _getStatusColor(plot.status, theme),
+                          side: BorderSide(color: _getStatusColor(plot.status, theme)),
+                        ),
+                      ),
+                    // Action buttons
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (onEdit != null)
+                          IconButton(
+                            icon: const Icon(Icons.edit, size: 20),
+                            onPressed: onEdit,
+                            tooltip: 'Edit',
+                          ),
+                        if (onDelete != null)
+                          IconButton(
+                            icon: const Icon(Icons.delete, size: 20),
+                            color: Colors.red,
+                            onPressed: onDelete,
+                            tooltip: 'Delete',
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),
@@ -135,5 +181,79 @@ class PlotCard extends StatelessWidget {
       case PlotStatus.retired:
         return Colors.grey;
     }
+  }
+
+  IconData _getStatusIcon(PlotStatus status) {
+    switch (status) {
+      case PlotStatus.active:
+        return Icons.pause_circle_outline;
+      case PlotStatus.fallow:
+        return Icons.play_circle_outline;
+      case PlotStatus.retired:
+        return Icons.refresh;
+    }
+  }
+
+  String _getNextStatusAction(PlotStatus status) {
+    switch (status) {
+      case PlotStatus.active:
+        return 'Set Fallow';
+      case PlotStatus.fallow:
+        return 'Reactivate';
+      case PlotStatus.retired:
+        return 'Reactivate';
+    }
+  }
+
+  /// Add a more comprehensive status menu option
+  void showStatusMenu(BuildContext context, VoidCallback? onStatusChange) {
+    if (onStatusChange == null) return;
+    
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Change Plot Status',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: const Icon(Icons.play_circle, color: Colors.green),
+              title: const Text('Set Active'),
+              subtitle: const Text('Plot is ready for new activities'),
+              onTap: () {
+                Navigator.pop(context);
+                onStatusChange();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.pause_circle, color: Colors.orange),
+              title: const Text('Set Fallow'),
+              subtitle: const Text('Plot is resting between seasons'),
+              onTap: () {
+                Navigator.pop(context);
+                onStatusChange();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.stop_circle, color: Colors.grey),
+              title: const Text('Retire Plot'),
+              subtitle: const Text('Plot is no longer in use'),
+              onTap: () {
+                Navigator.pop(context);
+                onStatusChange();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

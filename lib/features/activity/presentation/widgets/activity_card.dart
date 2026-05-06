@@ -6,12 +6,14 @@ import 'package:intl/intl.dart';
 class ActivityCard extends StatelessWidget {
   final Activity activity;
   final VoidCallback? onTap;
+  final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
   const ActivityCard({
     super.key,
     required this.activity,
     this.onTap,
+    this.onEdit,
     this.onDelete,
   });
 
@@ -89,6 +91,18 @@ class ActivityCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  
+                  // Edit button
+                  if (onEdit != null) ...[
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.edit_outlined),
+                      iconSize: 20,
+                      color: theme.colorScheme.primary,
+                      onPressed: onEdit,
+                      tooltip: 'Edit',
+                    ),
+                  ],
                   
                   // Delete button
                   if (onDelete != null) ...[
@@ -209,7 +223,7 @@ class ActivityCard extends StatelessWidget {
       case ActivityType.watering:
         return Icons.water_drop;
       case ActivityType.spray:
-        return Icons.spray;
+        return Icons.pest_control;
       case ActivityType.harvest:
         return Icons.grass;
       case ActivityType.fertilizer:

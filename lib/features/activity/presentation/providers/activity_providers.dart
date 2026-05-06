@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/data_sources/activity_local_data_source.dart';
 import '../../data/repositories/activity_repository.dart';
@@ -50,8 +51,19 @@ final deleteActivityUseCaseProvider = Provider<DeleteActivityUseCase>((ref) {
 
 /// Provider that watches all activities as a stream.
 final activitiesStreamProvider = StreamProvider<List<Activity>>((ref) {
-  final repository = ref.watch(activityRepositoryProvider);
-  return repository.watchActivities();
+  try {
+    final repository = ref.watch(activityRepositoryProvider);
+    return repository.watchActivities().handleError((error, stackTrace) {
+      debugPrint('Error in activitiesStreamProvider: $error');
+      debugPrint('Stack trace: $stackTrace');
+      throw error; // Re-throw to let Riverpod handle it
+    });
+  } catch (e) {
+    debugPrint('Error creating activitiesStreamProvider: $e');
+    // Return a stream with the synchronous data as fallback
+    final repository = ref.read(activityRepositoryProvider);
+    return Stream.value(repository.getAllActivities());
+  }
 });
 
 /// Provider that watches activities for a specific plot.
@@ -59,6 +71,23 @@ final activitiesByPlotStreamProvider =
     StreamProvider.family<List<Activity>, String>((ref, plotId) {
   final repository = ref.watch(activityRepositoryProvider);
   return repository.watchActivitiesByPlotId(plotId);
+});
+
+/// Provider that returns all activities as a list (synchronous).
+final activitiesListProvider = Provider<List<Activity>>((ref) {
+  try {
+    final repository = ref.watch(activityRepositoryProvider);
+    return repository.getAllActivities();
+  } catch (e) {
+    debugPrint('Error in activitiesListProvider: $e');
+    return <Activity>[];
+  }
+});
+
+/// Provider that returns activities for a specific plot (synchronous).
+final activitiesByPlotProvider = Provider.family<List<Activity>, String>((ref, plotId) {
+  final repository = ref.watch(activityRepositoryProvider);
+  return repository.getActivitiesByPlotId(plotId);
 });
 
 /// Provider for a specific activity by ID.
@@ -69,8 +98,13 @@ final activityByIdProvider = Provider.family<Activity?, String>((ref, id) {
 
 /// Provider for recent activities (last 7 days).
 final recentActivitiesProvider = Provider<List<Activity>>((ref) {
-  final repository = ref.watch(activityRepositoryProvider);
-  return repository.getRecentActivities(7);
+  try {
+    final repository = ref.watch(activityRepositoryProvider);
+    return repository.getRecentActivities(7);
+  } catch (e) {
+    debugPrint('Error in recentActivitiesProvider: $e');
+    return <Activity>[];
+  }
 });
 
 // ══════════════════════════════════════════════════════════════════════════════

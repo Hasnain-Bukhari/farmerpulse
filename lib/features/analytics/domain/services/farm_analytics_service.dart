@@ -1,9 +1,10 @@
-import '../../season/data/repositories/season_repository.dart';
-import '../../plot/data/repositories/plot_repository.dart';
-import '../../activity/data/repositories/activity_repository.dart';
-import '../../reminder/data/repositories/reminder_repository.dart';
+import '../../../season/data/repositories/season_repository.dart';
+import '../../../plot/data/repositories/plot_repository.dart';
+import '../../../activity/data/repositories/activity_repository.dart';
+import '../../../activity/domain/entities/activity.dart';
+import '../../../reminder/data/repositories/reminder_repository.dart';
 import '../entities/dashboard_summary.dart';
-import '../entities/season_analytics.dart';
+// import '../entities/season_analytics.dart'; // TODO: Create if needed
 
 /// Service for calculating farm analytics and dashboard data.
 class FarmAnalyticsService {

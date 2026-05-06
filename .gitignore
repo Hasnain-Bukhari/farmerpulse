@@ -5,9 +5,11 @@
 *.swp
 .DS_Store
 .atom/
+.build/
 .buildlog/
 .history
 .svn/
+.swiftpm/
 migrate_working_dir/
 
 # IntelliJ related
@@ -30,6 +32,21 @@ migrate_working_dir/
 .pub/
 /build/
 
+# Web build artifacts
+/web/
+
+# Windows build artifacts
+/windows/flutter/generated_plugin_registrant.cc
+/windows/flutter/generated_plugin_registrant.h
+/windows/runner/flutter_window.cpp
+
+# macOS build artifacts
+/macos/Flutter/GeneratedPluginRegistrant.swift
+
+# Linux build artifacts
+/linux/flutter/generated_plugin_registrant.cc
+/linux/flutter/generated_plugin_registrant.h
+
 # Symbolication related
 app.*.symbols
 
@@ -40,6 +57,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/gradle/
+/android/.gradle/
+/android/local.properties
+/android/key.properties
+/android/app/upload-keystore.jks
 
 # iOS build artifacts
 /ios/Flutter/App.framework
@@ -52,9 +74,14 @@ app.*.map.json
 /ios/Flutter/flutter_export_environment.sh
 /ios/ServiceDefinitions.json
 /ios/Runner/GeneratedPluginRegistrant.*
+/ios/Podfile.lock
+/ios/Pods/
+/ios/.symlinks/
+/ios/Flutter/flutter_export_environment.sh
 
 # Coverage
 coverage/
+lcov.info
 
 # Environment files
 .env
@@ -62,3 +89,56 @@ coverage/
 
 # Generated files (Hive adapters, Riverpod generated code)
 *.g.dart
+*.freezed.dart
+*.mocks.dart
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Log files
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Backup files
+*.bak
+*.backup
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Development tools
+.flutter-plugins-dependencies
+
+# Test related
+test/coverage/
+test/.test_coverage.dart
+
+# Localization generated files
+lib/generated/l10n/
+lib/generated/intl/
+
+# Firebase
+google-services.json
+GoogleService-Info.plist
+firebase_options.dart
+
+# Crashlytics
+**/crashlytics-build.properties
+
+# FVM (Flutter Version Management)
+.fvm/
+
+# Mason (Code generation)
+mason-lock.json
+.mason/

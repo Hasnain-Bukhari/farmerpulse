@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../providers/analytics_providers.dart';
 import '../../domain/entities/revenue.dart';
+import '../../../season/presentation/providers/season_providers.dart';
+import '../../../plot/presentation/providers/plot_providers.dart';
+import '../../../plot/domain/entities/plot.dart';
 import '../../../../shared/widgets/app_loading_indicator.dart';
 
 /// Screen for adding or editing revenue records.
@@ -43,6 +46,17 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
     _selectedSeasonId = widget.seasonId;
     _selectedPlotId = widget.plotId;
     _loadRevenue();
+    
+    // Add a post frame callback to validate the season ID after the widget tree is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final seasons = ref.read(seasonsListProvider);
+      if (_selectedSeasonId != null && seasons.isNotEmpty && !seasons.any((s) => s.id == _selectedSeasonId)) {
+        setState(() {
+          _selectedSeasonId = seasons.first.id;
+          _selectedPlotId = null; // Reset plot selection
+        });
+      }
+    });
   }
 
   void _loadRevenue() {
@@ -71,13 +85,28 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
   @override
   Widget build(BuildContext context) {
     final seasons = ref.watch(seasonsListProvider);
+    
+    // Ensure _selectedSeasonId is valid - if it's not in the list, reset it
+    if (_selectedSeasonId != null && !seasons.any((s) => s.id == _selectedSeasonId)) {
+      _selectedSeasonId = seasons.isNotEmpty ? seasons.first.id : null;
+    }
+    
     final plots = _selectedSeasonId != null
         ? ref.watch(plotsBySeasonProvider(_selectedSeasonId!))
-        : <Plot>[];
+            : <Plot>[];
+            
+    // Ensure _selectedPlotId is valid - if it's not in the list, reset it
+    if (_selectedPlotId != null && !plots.any((p) => p.id == _selectedPlotId)) {
+      _selectedPlotId = null; // Reset to season-wide
+    }
 
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? 'Edit Revenue' : 'Add Revenue'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         actions: [
           if (_isLoading)
             const Center(
@@ -102,6 +131,37 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            if (seasons.isEmpty) ...[
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.orange,
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'No Seasons Found',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Please create a season first before adding revenue.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ] else ...[
             // Description
             TextFormField(
               controller: _descriptionController,
@@ -152,14 +212,9 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
               ),
               items: RevenueType.values.map((type) {
                 return DropdownMenuItem(
+                  key: ValueKey(type),
                   value: type,
-                  child: Row(
-                    children: [
-                      Icon(_getTypeIcon(type), size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(type.label)),
-                    ],
-                  ),
+                  child: Text(type.label),
                 );
               }).toList(),
               onChanged: (value) {
@@ -173,14 +228,15 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
             const SizedBox(height: 16),
 
             // Season Selection
-            DropdownButtonFormField<String>(
+            DropdownButtonFormField<String?>(
               value: _selectedSeasonId,
               decoration: const InputDecoration(
                 labelText: 'Season *',
                 border: OutlineInputBorder(),
               ),
-              items: seasons.map((season) {
-                return DropdownMenuItem(
+              items: seasons.isEmpty ? [] : seasons.map((season) {
+                return DropdownMenuItem<String?>(
+                  key: ValueKey(season.id),
                   value: season.id,
                   child: Text(season.name),
                 );
@@ -209,16 +265,18 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
                 border: OutlineInputBorder(),
               ),
               items: [
-                const DropdownMenuItem(
+                const DropdownMenuItem<String?>(
+                  key: ValueKey('season-wide'),
                   value: null,
                   child: Text('Season-wide revenue'),
                 ),
                 ...plots.map((plot) {
-                  return DropdownMenuItem(
+                  return DropdownMenuItem<String?>(
+                    key: ValueKey(plot.id),
                     value: plot.id,
                     child: Text(plot.name),
                   );
-                }),
+                }).toList(),
               ],
               onChanged: (value) {
                 setState(() {
@@ -289,6 +347,7 @@ class _RevenueFormScreenState extends ConsumerState<RevenueFormScreen> {
                 ],
               ),
             ),
+            ], // Close the else block
           ],
         ),
       ),

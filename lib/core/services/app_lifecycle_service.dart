@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/services/notification_service.dart';
-import '../../features/reminder/presentation/providers/reminder_providers.dart';
+// import '../../features/reminder/presentation/providers/reminder_providers.dart';
 
 /// Provider for app initialization state.
 final appInitializationProvider = FutureProvider<bool>((ref) async {
   try {
     // Initialize notification service
-    final notificationService = ref.read(notificationServiceProvider);
+    final notificationService = NotificationService();
     await notificationService.initialize();
     
     // Request permissions
@@ -22,23 +23,23 @@ final appInitializationProvider = FutureProvider<bool>((ref) async {
 });
 
 /// Service for managing app lifecycle and notifications.
-class AppLifecycleService extends WidgetBindingObserver {
+class AppLifecycleService {
   final NotificationService _notificationService;
   
   AppLifecycleService(this._notificationService);
 
   /// Initialize the lifecycle service.
-  void initialize() {
-    WidgetsBinding.instance.addObserver(this);
+  Future<void> initialize() async {
+    await _checkNotificationPermissions();
   }
 
   /// Dispose the lifecycle service.
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    // Service cleanup if needed
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  /// Handle app lifecycle state changes (called from widget observer)
+  void handleLifecycleChange(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
         // App came to foreground
@@ -85,11 +86,17 @@ class AppLifecycleService extends WidgetBindingObserver {
       debugPrint('Failed to check notification permissions: $e');
     }
   }
+
+  /// Request notification permission
+  Future<void> requestNotificationPermission() async {
+    await _notificationService.requestPermissions();
+  }
+
 }
 
 /// Provider for app lifecycle service.
 final appLifecycleServiceProvider = Provider<AppLifecycleService>((ref) {
-  final notificationService = ref.watch(notificationServiceProvider);
+  final notificationService = NotificationService();
   return AppLifecycleService(notificationService);
 });
 

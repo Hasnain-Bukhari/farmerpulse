@@ -76,6 +76,10 @@ class _ActivityFormScreenState extends ConsumerState<ActivityFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isEditing ? 'Edit Activity' : 'Add Activity'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: Form(
         key: _formKey,
@@ -300,7 +304,7 @@ class _ActivityFormScreenState extends ConsumerState<ActivityFormScreen> {
       case ActivityType.watering:
         return Icons.water_drop;
       case ActivityType.spray:
-        return Icons.spray;
+        return Icons.pest_control;
       case ActivityType.harvest:
         return Icons.grass;
       case ActivityType.fertilizer:
@@ -384,27 +388,20 @@ class _ActivityFormScreenState extends ConsumerState<ActivityFormScreen> {
 
       if (widget.activityId != null) {
         await ref.read(updateActivityUseCaseProvider).call(activity);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Activity updated!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
       } else {
         await ref.read(createActivityUseCaseProvider).call(activity);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Activity added!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
       }
 
+      // Refresh the activities data
+      ref.invalidate(activitiesByPlotProvider(widget.plotId));
+
       if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(widget.activityId != null ? 'Activity updated!' : 'Activity added!'),
+            backgroundColor: Colors.green,
+          ),
+        );
         context.pop();
       }
     } catch (e) {
@@ -438,74 +435,4 @@ class _ActivityFormScreenState extends ConsumerState<ActivityFormScreen> {
   }
 
   String? _savedActivityId;
-
-  // Modify _saveActivity to store the activity ID
-  Future<void> _saveActivity() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final activityId = widget.activityId ?? DateTime.now().millisecondsSinceEpoch.toString();
-      _savedActivityId = activityId;
-
-      final activity = Activity(
-        id: activityId,
-        plotId: widget.plotId,
-        type: _selectedType,
-        title: _titleController.text.trim(),
-        description: _descriptionController.text.trim(),
-        date: DateTime(
-          _selectedDate.year,
-          _selectedDate.month,
-          _selectedDate.day,
-          _selectedTime.hour,
-          _selectedTime.minute,
-        ),
-        durationMinutes: _durationMinutes,
-        cost: _cost,
-        quantity: _quantity,
-        unit: _unitController.text.trim().isNotEmpty ? _unitController.text.trim() : null,
-        status: _selectedStatus,
-        photos: [], // TODO: Implement photo support
-        createdAt: DateTime.now(),
-      );
-
-      if (_isEditing) {
-        await ref.read(updateActivityUseCaseProvider).call(activity);
-      } else {
-        await ref.read(createActivityUseCaseProvider).call(activity);
-      }
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_isEditing ? 'Activity updated!' : 'Activity created!'),
-          ),
-        );
-        
-        // Only pop if not creating reminder
-        if (!mounted || _savedActivityId == null) {
-          context.pop();
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
 }

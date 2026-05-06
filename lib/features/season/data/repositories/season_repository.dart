@@ -32,7 +32,7 @@ class SeasonRepository {
   Season? getActiveSeason() {
     try {
       final model = _dataSource.getActiveSeason();
-      return model.toEntity();
+      return model?.toEntity();
     } catch (e) {
       return null;
     }

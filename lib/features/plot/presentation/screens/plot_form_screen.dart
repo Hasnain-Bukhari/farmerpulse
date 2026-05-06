@@ -71,6 +71,10 @@ class _PlotFormScreenState extends ConsumerState<PlotFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isEditing ? 'Edit Plot' : 'Add Plot'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: Form(
         key: _formKey,
@@ -265,12 +269,19 @@ class _PlotFormScreenState extends ConsumerState<PlotFormScreen> {
             : _notesController.text.trim(),
       );
 
-      await ref.read(createPlotUseCaseProvider).call(plot);
+      if (widget.plotId != null) {
+        await ref.read(updatePlotUseCaseProvider).call(plot);
+      } else {
+        await ref.read(createPlotUseCaseProvider).call(plot);
+      }
+
+      // Refresh the plots data
+      ref.invalidate(plotsBySeasonProvider(widget.seasonId));
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isEditing ? 'Plot updated!' : 'Plot added!'),
+                content: Text(widget.plotId != null ? 'Plot updated!' : 'Plot added!'),
             backgroundColor: Colors.green,
           ),
         );

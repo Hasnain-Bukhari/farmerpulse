@@ -18,11 +18,17 @@ class SeasonListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seasonsAsync = ref.watch(seasonsStreamProvider);
+    final seasons = ref.watch(seasonsListProvider);
+    // Convert to AsyncValue for compatibility with existing UI
+    final seasonsAsync = AsyncValue.data(seasons);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Seasons'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
@@ -60,7 +66,7 @@ class SeasonListScreen extends ConsumerWidget {
         loading: () => const Center(child: AppLoadingIndicator()),
         error: (error, stack) => AppErrorWidget(
           message: 'Failed to load seasons: $error',
-          onRetry: () => ref.refresh(seasonsStreamProvider),
+          onRetry: () => ref.refresh(seasonsListProvider),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -113,7 +119,8 @@ class SeasonListScreen extends ConsumerWidget {
   }
 
   void _navigateToSeasonDetail(BuildContext context, String seasonId) {
-    context.push('/seasons/$seasonId');
+    // Navigate to plots for this season
+    context.push('/seasons/$seasonId/plots');
   }
 
   void _showSeasonInfo(BuildContext context) {

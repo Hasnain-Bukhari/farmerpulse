@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../domain/entities/reminder.dart';
 import '../providers/reminder_providers.dart';
 import '../widgets/reminder_card.dart';
 import '../../../../shared/widgets/app_loading_indicator.dart';
@@ -13,11 +14,20 @@ class RemindersListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final remindersAsync = ref.watch(activeRemindersStreamProvider);
+    final fallbackReminders = ref.watch(activeRemindersFallbackProvider);
     final dueCount = ref.watch(dueRemindersCountProvider);
 
+    // Debug: Add logging to understand the loading issue
+    debugPrint('Reminders screen build - AsyncValue state: ${remindersAsync.runtimeType}');
+    debugPrint('Fallback reminders: ${fallbackReminders.length}');
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Reminders'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         actions: [
           if (dueCount > 0)
             Padding(
@@ -55,11 +65,41 @@ class RemindersListScreen extends ConsumerWidget {
 
           return _buildRemindersList(context, ref, reminders);
         },
-        loading: () => const Center(child: AppLoadingIndicator()),
-        error: (error, stack) => AppErrorWidget(
-          message: 'Failed to load reminders: $error',
-          onRetry: () => ref.refresh(activeRemindersStreamProvider),
-        ),
+        loading: () {
+          // Use fallback data if available while loading
+          if (fallbackReminders.isNotEmpty) {
+            return _buildRemindersList(context, ref, fallbackReminders);
+          }
+          return const Center(child: AppLoadingIndicator());
+        },
+        error: (error, stack) {
+          // Use fallback data if available on error
+          if (fallbackReminders.isNotEmpty) {
+            return Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(8),
+                  color: Colors.orange.withOpacity(0.1),
+                  child: Text(
+                    'Using cached data (sync issue detected)',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.orange.shade700,
+                        ),
+                  ),
+                ),
+                Expanded(
+                  child: _buildRemindersList(context, ref, fallbackReminders),
+                ),
+              ],
+            );
+          }
+          return AppErrorWidget(
+            message: 'Failed to load reminders: $error',
+            onRetry: () => ref.refresh(activeRemindersStreamProvider),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/reminders/add'),
@@ -110,7 +150,7 @@ class RemindersListScreen extends ConsumerWidget {
   Widget _buildRemindersList(
     BuildContext context,
     WidgetRef ref,
-    List<reminder.Reminder> reminders,
+    List<Reminder> reminders,
   ) {
     // Group reminders by status
     final overdue = reminders.where((r) => r.isOverdue).toList();
@@ -163,7 +203,7 @@ class RemindersListScreen extends ConsumerWidget {
   Widget _buildReminderCard(
     BuildContext context,
     WidgetRef ref,
-    reminder.Reminder reminder,
+    Reminder reminder,
   ) {
     return ReminderCard(
       reminder: reminder,
@@ -174,7 +214,7 @@ class RemindersListScreen extends ConsumerWidget {
     );
   }
 
-  void _showReminderDetails(BuildContext context, reminder.Reminder reminder) {
+  void _showReminderDetails(BuildContext context, Reminder reminder) {
     // TODO: Navigate to reminder detail screen or show bottom sheet
     showModalBottomSheet(
       context: context,
@@ -186,7 +226,7 @@ class RemindersListScreen extends ConsumerWidget {
   Future<void> _completeReminder(
     BuildContext context,
     WidgetRef ref,
-    reminder.Reminder reminder,
+    Reminder reminder,
   ) async {
     try {
       await ref.read(completeReminderUseCaseProvider).call(reminder.id);
@@ -210,7 +250,7 @@ class RemindersListScreen extends ConsumerWidget {
   Future<void> _confirmDelete(
     BuildContext context,
     WidgetRef ref,
-    reminder.Reminder reminder,
+    Reminder reminder,
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -308,7 +348,7 @@ class _SectionHeader extends StatelessWidget {
 
 /// Bottom sheet showing reminder details.
 class _ReminderDetailsSheet extends StatelessWidget {
-  final reminder.Reminder reminder;
+  final Reminder reminder;
 
   const _ReminderDetailsSheet({required this.reminder});
 

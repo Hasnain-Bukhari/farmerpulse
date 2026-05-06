@@ -2,6 +2,15 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 
+/// Enum for different repeat intervals
+enum RepeatInterval {
+  everyMinute,
+  hourly,
+  daily,
+  weekly,
+  yearly,
+}
+
 /// Service for managing local notifications and reminders.
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();

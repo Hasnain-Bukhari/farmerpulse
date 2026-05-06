@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../providers/analytics_providers.dart';
 import '../widgets/dashboard_widgets.dart';
+import '../../../season/presentation/providers/season_providers.dart';
 import '../../domain/entities/revenue.dart';
 import '../../../../shared/widgets/app_loading_indicator.dart';
 import '../../../../shared/widgets/app_error_widget.dart';
@@ -44,6 +45,10 @@ class _ProfitLossScreenState extends ConsumerState<ProfitLossScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profit & Loss'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -72,9 +77,11 @@ class _ProfitLossScreenState extends ConsumerState<ProfitLossScreen>
   }
 
   Widget _buildOverviewTab() {
-    final profitLossAsync = _selectedSeasonId != null
+    final profitLossResult = _selectedSeasonId != null
         ? ref.watch(seasonProfitLossProvider(_selectedSeasonId!))
         : ref.watch(totalProfitLossProvider);
+    
+    final profitLossAsync = AsyncValue.data(profitLossResult);
 
     return profitLossAsync.when(
       data: (result) => ListView(
@@ -113,9 +120,11 @@ class _ProfitLossScreenState extends ConsumerState<ProfitLossScreen>
   }
 
   Widget _buildRevenueTab() {
-    final revenuesAsync = _selectedSeasonId != null
+    final revenues = _selectedSeasonId != null
         ? ref.watch(seasonRevenuesProvider(_selectedSeasonId!))
         : ref.watch(allRevenuesProvider);
+    
+    final revenuesAsync = AsyncValue.data(revenues);
 
     return revenuesAsync.when(
       data: (revenues) => Column(
@@ -165,9 +174,11 @@ class _ProfitLossScreenState extends ConsumerState<ProfitLossScreen>
   }
 
   Widget _buildAnalysisTab() {
-    final profitLossAsync = _selectedSeasonId != null
+    final profitLossResult = _selectedSeasonId != null
         ? ref.watch(seasonProfitLossProvider(_selectedSeasonId!))
         : ref.watch(totalProfitLossProvider);
+    
+    final profitLossAsync = AsyncValue.data(profitLossResult);
 
     return profitLossAsync.when(
       data: (result) => ListView(
@@ -198,7 +209,7 @@ class _ProfitLossScreenState extends ConsumerState<ProfitLossScreen>
   }
 
   Widget _buildSeasonSelector() {
-    final seasonsAsync = ref.watch(seasonsListProvider);
+        final seasonsAsync = ref.watch(seasonsListProvider);
 
     return Card(
       child: Padding(
